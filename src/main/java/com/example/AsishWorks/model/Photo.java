@@ -17,8 +17,7 @@ public class Photo {
 
     private Binary image;
 
-
-   // public Photo(String title) {
-//        this.title = title;
-//    }
+    public Photo(String title) {
+        this.title = title;
+    }
 }

@@ -13,8 +13,10 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
+import org.springframework.stereotype.Service;
 
 
+@Service
 public class ExcelService {
     private XSSFWorkbook workBook;
     private XSSFSheet sheet;

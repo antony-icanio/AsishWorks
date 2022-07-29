@@ -2,12 +2,13 @@ package com.example.AsishWorks;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
-@SpringBootApplication
+@SpringBootApplication(exclude= SecurityAutoConfiguration.class)
 public class AsishWorksApplication {
-
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 		SpringApplication.run(AsishWorksApplication.class, args);
+		System.out.println("SERVER STARTED");
 	}
-
 }
