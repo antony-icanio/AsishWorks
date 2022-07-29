@@ -1,11 +1,20 @@
 package com.example.AsishWorks.service;
 
 import com.example.AsishWorks.model.Photo;
+import com.example.AsishWorks.model.rest.Video;
 import com.example.AsishWorks.repository.PhotoRepository;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.client.gridfs.model.GridFSFile;
 import org.bson.BsonBinarySubType;
 import org.bson.types.Binary;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsOperations;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -29,11 +38,22 @@ public class FileService {
     @Autowired
     PhotoRepository photoRepo;
 
+    @Autowired
+    private GridFsTemplate gridFsTemplate;
+
+    @Autowired
+    private GridFsOperations operations;
+
+
+    //               PHOTO FILE  HANDLING  SERVICE
+    //              *******************************
+
 
     public String addPhoto(String title, MultipartFile image) throws IOException {
         Photo photo = new Photo(title);
         photo.setImage(
                 new Binary(BsonBinarySubType.BINARY, image.getBytes()));
+        photo.setFileName(image.getOriginalFilename());
         photo = photoRepo.insert(photo);
         return photo.getId();
     }
@@ -41,6 +61,11 @@ public class FileService {
     public Photo getPhoto(String id) {
         return photoRepo.findById(id).get();
     }
+
+
+    //               ZIP  FILE  HANDLING SERVICE
+    //              *****************************
+
 
     //      File upload via postman and save localSystem in your choosing path
     public String fileUploadMethod1(MultipartFile file) {
@@ -221,6 +246,37 @@ public class FileService {
             System.out.println("Some Error "+e);
         }
         return "Successfully uploaded";
+    }
+
+
+
+
+
+    //               VEDIO  FILE  HANDLING  SERVICE
+    //              ********************************
+
+
+
+
+    //  Upload vedio file
+    public String addVideo(String title, MultipartFile file) throws IOException {
+        DBObject metaData = new BasicDBObject();
+        metaData.put("type", "video");
+        metaData.put("title", title);
+        metaData.put("fileName",file.getOriginalFilename());
+        ObjectId id = gridFsTemplate.store(
+                file.getInputStream(), file.getName(), file.getContentType(), metaData);
+        return id.toString();
+    }
+
+    //  Get vedio
+    public Video getVideo(String id) throws IllegalStateException, IOException {
+        GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id)));
+        Video video = new Video();
+        video.setTitle(file.getMetadata().get("title").toString());
+        video.setFileName(file.getMetadata().get("fileName").toString());
+        video.setStream(operations.getResource(file).getInputStream());
+        return video;
     }
 
 }

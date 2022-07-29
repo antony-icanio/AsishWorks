@@ -1,14 +1,18 @@
 package com.example.AsishWorks.controller;
 
 import com.example.AsishWorks.model.Photo;
+import com.example.AsishWorks.model.rest.Video;
 import com.example.AsishWorks.service.FileService;
+import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.Files;
@@ -21,6 +25,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+
+// Links
+
+//https://baeldung-cn.com/spring-boot-mongodb-upload-file#large
+
+//https://www.baeldung.com/java-compress-and-uncompress
+
 @RestController
 public class FileController {
 
@@ -28,20 +39,28 @@ public class FileController {
     FileService fileService;
 
 
+    //               PHOTO FILE  HANDLING
+    //              **********************
+
     // Photo Upload into DB
-    @PostMapping("/photos/add")
-    public String addPhoto(@RequestParam("title") String title,
-                           @RequestParam("image") MultipartFile image)
-            throws IOException {
+    @PostMapping("/photo")
+    public String addPhoto(@RequestParam("title") String title, @RequestParam("image") MultipartFile image) throws IOException {
         String id = fileService.addPhoto(title, image);
         return  "your photo's id "+id;
     }
 
     // Photo Get from DB
-    @GetMapping("/photos/{id}")
-    public Photo getPhoto(@PathVariable String id) {
-        return fileService.getPhoto(id);
+    @GetMapping("/photo/{id}")
+    public void getPhoto(@PathVariable String id,HttpServletResponse response) throws IOException {
+        Photo photo=fileService.getPhoto(id);
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment;filename="+photo.getFileName());
+        FileCopyUtils.copy(photo.getImage().getData(), response.getOutputStream());
     }
+
+
+    //               ZIP  FILE  HANDLING
+    //              *********************
 
 
     //      File upload via postman and save localSystem in your choosing path
@@ -80,16 +99,46 @@ public class FileController {
 
     //   Zip file extact with your wishable place
     @GetMapping("/extractZipFile")
-    public void unzip() throws IOException {
-       fileService.unzip();
-    }
+    public void unzip() throws IOException {  fileService.unzip();}
 
 
     //  Input Zip File to Uploading and Extract your system
     @PostMapping("/inputZipFileExtracting")
-    public String inputZipExtracting(@RequestParam("file") MultipartFile file)
-    {
-       return fileService.inputZipExtracting(file);
+    public String inputZipExtracting(@RequestParam("file") MultipartFile file){return fileService.inputZipExtracting(file);}
+
+
+
+
+    //               VEDIO  FILE  HANDLING
+    //              ***********************
+
+
+
+    //  Upload vedio file
+    @PostMapping("/video")
+    public String addVideo(@RequestParam("title") String title,
+                           @RequestParam("file") MultipartFile file) throws IOException {
+        String id = fileService.addVideo(title, file);
+        return id+" This id for get This vedio";
+    }
+
+    //  Get vedio for give front end
+
+//    @GetMapping("/video/{id}")
+//    public Video getVideo(@PathVariable String id) throws Exception {
+//        Video video = fileService.getVideo(id);
+//        return video;
+//    }
+
+    //Get video for direct Download
+    @GetMapping("/video/{id}")
+    public void streamVideo(@PathVariable String id, HttpServletResponse response) throws Exception {
+        Video video = fileService.getVideo(id);
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment;filename="+video.getFileName();
+        response.setHeader(headerKey, headerValue);
+        FileCopyUtils.copy(video.getStream(), response.getOutputStream());
     }
 
 }

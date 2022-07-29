@@ -13,6 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
+// Links
+
+//https://www.javatpoint.com/apache-poi-cell-multiple-styles
+
+//https://simplesolution.dev/java-code-examples/apache-poi-vertical-horizontal-excel-cell-alignment/
+
 @RestController
 @CrossOrigin
 @RequestMapping("excel")

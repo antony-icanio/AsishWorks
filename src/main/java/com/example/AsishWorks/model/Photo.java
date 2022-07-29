@@ -15,6 +15,8 @@ public class Photo {
 
     private String title;
 
+    private String fileName;
+
     private Binary image;
 
     public Photo(String title) {
