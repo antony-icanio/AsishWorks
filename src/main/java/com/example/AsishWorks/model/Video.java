@@ -6,20 +6,16 @@ import org.bson.types.Binary;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "Photos")
+import java.io.InputStream;
+
 @Data
 @NoArgsConstructor
-public class Photo {
+@Document(collection="Videos")
+public class Video {
     @Id
     private String id;
-
     private String title;
-
     private String fileName;
-
-    private Binary image;
-
-    public Photo(String title) {
-        this.title = title;
-    }
+    private InputStream stream;
+    private Binary video;
 }

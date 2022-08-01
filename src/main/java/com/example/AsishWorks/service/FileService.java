@@ -1,8 +1,9 @@
 package com.example.AsishWorks.service;
 
 import com.example.AsishWorks.model.Photo;
-import com.example.AsishWorks.model.rest.Video;
+import com.example.AsishWorks.model.Video;
 import com.example.AsishWorks.repository.PhotoRepository;
+import com.example.AsishWorks.repository.VideoRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,6 +46,9 @@ public class FileService {
     @Autowired
     private GridFsOperations operations;
 
+    @Autowired
+    private VideoRepository videoRepo;
+
 
     //               PHOTO FILE  HANDLING  SERVICE
     //              *******************************
@@ -58,9 +63,7 @@ public class FileService {
         return photo.getId();
     }
 
-    public Photo getPhoto(String id) {
-        return photoRepo.findById(id).get();
-    }
+    public Photo getPhoto(String id) {return photoRepo.findById(id).get();}
 
 
     //               ZIP  FILE  HANDLING SERVICE
@@ -257,26 +260,31 @@ public class FileService {
 
 
 
-
-    //  Upload vedio file
+    //  Upload vedio file to DB
     public String addVideo(String title, MultipartFile file) throws IOException {
-        DBObject metaData = new BasicDBObject();
-        metaData.put("type", "video");
-        metaData.put("title", title);
-        metaData.put("fileName",file.getOriginalFilename());
-        ObjectId id = gridFsTemplate.store(
-                file.getInputStream(), file.getName(), file.getContentType(), metaData);
-        return id.toString();
+//        DBObject metaData = new BasicDBObject();
+//        metaData.put("type", "video");
+//        metaData.put("title", title);
+//        metaData.put("fileName",file.getOriginalFilename());
+//        ObjectId id = gridFsTemplate.store(
+//                file.getInputStream(), file.getName(), file.getContentType(), metaData);
+//        return id.toString();
+
+        Video video=new Video();
+        video.setFileName(file.getOriginalFilename());
+        video.setVideo(new Binary(BsonBinarySubType.BINARY, file.getBytes()));
+        video.setTitle(title);
+         return  videoRepo.insert(video).getId();
     }
 
-    //  Get vedio
+    //  Get vedio file from DB
     public Video getVideo(String id) throws IllegalStateException, IOException {
-        GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id)));
-        Video video = new Video();
-        video.setTitle(file.getMetadata().get("title").toString());
-        video.setFileName(file.getMetadata().get("fileName").toString());
-        video.setStream(operations.getResource(file).getInputStream());
-        return video;
+//        GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id)));
+//        Video video = new Video();
+//        video.setTitle(file.getMetadata().get("title").toString());
+//        video.setFileName(file.getMetadata().get("fileName").toString());
+//        video.setStream(operations.getResource(file).getInputStream());
+        return videoRepo.findById(id).get();
     }
 
 }

@@ -1,28 +1,16 @@
 package com.example.AsishWorks.controller;
 
 import com.example.AsishWorks.model.Photo;
-import com.example.AsishWorks.model.rest.Video;
+import com.example.AsishWorks.model.Video;
 import com.example.AsishWorks.service.FileService;
-import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 
@@ -118,27 +106,17 @@ public class FileController {
     @PostMapping("/video")
     public String addVideo(@RequestParam("title") String title,
                            @RequestParam("file") MultipartFile file) throws IOException {
-        String id = fileService.addVideo(title, file);
-        return id+" This id for get This vedio";
+         String id=fileService.addVideo(title, file);
+         return id+" This id for get This vedio";
     }
-
-    //  Get vedio for give front end
-
-//    @GetMapping("/video/{id}")
-//    public Video getVideo(@PathVariable String id) throws Exception {
-//        Video video = fileService.getVideo(id);
-//        return video;
-//    }
 
     //Get video for direct Download
     @GetMapping("/video/{id}")
     public void streamVideo(@PathVariable String id, HttpServletResponse response) throws Exception {
         Video video = fileService.getVideo(id);
         response.setContentType("application/octet-stream");
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment;filename="+video.getFileName();
-        response.setHeader(headerKey, headerValue);
-        FileCopyUtils.copy(video.getStream(), response.getOutputStream());
+        response.setHeader("Content-Disposition", "attachment;filename="+video.getFileName());
+        FileCopyUtils.copy(video.getVideo().getData(), response.getOutputStream());
     }
 
 }
