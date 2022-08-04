@@ -14,6 +14,10 @@ import java.io.*;
 import java.util.zip.ZipOutputStream;
 
 
+//management.endpoints.web.exposure.include=*
+//
+//management.endpoints.web.exposure.include=mappings
+
 // Links
 
 //https://baeldung-cn.com/spring-boot-mongodb-upload-file#large
@@ -25,6 +29,39 @@ public class FileController {
 
     @Autowired
     FileService fileService;
+
+
+
+
+
+    @PutMapping("/checkPut")
+    public String checkPut() {
+        return  "This is put call";
+    }
+
+    @DeleteMapping("/checkDelete")
+    public String checkDelete() {
+        return  "This is Delete call";
+    }
+
+    @PostMapping("/checkPost")
+    public String checkPost() {
+        return  "This is post call";
+    }
+
+
+    @GetMapping("/checkGet")
+    public String checkGet() {
+        return  "This is post call";
+    }
+
+
+
+
+
+
+
+
 
 
     //               PHOTO FILE  HANDLING
@@ -85,7 +122,7 @@ public class FileController {
     }
 
 
-    //   Zip file extact with your wishable place
+    //   Zip file extract with your choosing place
     @GetMapping("/extractZipFile")
     public void unzip() throws IOException {  fileService.unzip();}
 
@@ -97,15 +134,13 @@ public class FileController {
 
 
 
-    //               VEDIO  FILE  HANDLING
+    //               VIDEO  FILE  HANDLING
     //              ***********************
-
 
 
     //  Upload vedio file
     @PostMapping("/video")
-    public String addVideo(@RequestParam("title") String title,
-                           @RequestParam("file") MultipartFile file) throws IOException {
+    public String addVideo(@RequestParam("title") String title,@RequestParam("file") MultipartFile file) throws IOException {
          String id=fileService.addVideo(title, file);
          return id+" This id for get This vedio";
     }
