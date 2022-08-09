@@ -1,16 +1,14 @@
 package com.example.AsishWorks.controller;
 
 import com.example.AsishWorks.model.EndPointDetails;
-import com.example.AsishWorks.model.rest.AllEndPointModel;
+import com.example.AsishWorks.model.FinalModelUnsedApi;
+import com.example.AsishWorks.model.rest.*;
 import com.example.AsishWorks.model.EndpointModel;
-import com.example.AsishWorks.model.rest.AvailableTags;
-import com.example.AsishWorks.model.rest.EndPointDetailsModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import com.example.AsishWorks.model.rest.DispatcherServlet;
 
 import java.util.*;
 
@@ -103,7 +101,7 @@ public class ActuatorController {
 
 
     @GetMapping("unUsedApiList")
-    public List<EndPointDetails> unUsedApiList(){
+    public List<FinalModelUnsedApi> unUsedApiList(){
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<String> entity = new HttpEntity<String>(headers);
@@ -113,6 +111,8 @@ public class ActuatorController {
         List<String> hitEndPointList = availableTags.getValues();
         //Set<String> unUsedEndPointList = new HashSet<>();
         List<String> unUsedEndPointList = new ArrayList<>();
+
+        // Find UnUsed Endpoint
 
         int count=0;
         for (String endPoint : endPointList){
@@ -127,7 +127,6 @@ public class ActuatorController {
            count=0;
         }
 
-
         EndPointDetailsModel endPointDetailsModel=restTemplate.exchange("http://localhost:8080/allEndpointDetails", HttpMethod.GET, entity, EndPointDetailsModel.class).getBody();
         List<EndPointDetails> endPointDetailsList = endPointDetailsModel.getEndPointDetails();
         List<EndPointDetails> endPointDetailsList1 = new ArrayList<>();
@@ -140,6 +139,31 @@ public class ActuatorController {
             }
         }
 
-        return endPointDetailsList1;
+        //  For Erase Duplicate Handler Name
+        Set<String> EndPointDetails1=new HashSet<>();
+        for(EndPointDetails ob :endPointDetailsList1){
+            EndPointDetails1.add(ob.getHandlerName());
+        }
+
+
+        List<MethodAndEndpoint> methodAndEndpointList =new ArrayList<>();
+        List<FinalModelUnsedApi> finalModelUnsedApiList =new ArrayList<>();
+        for(String handlerName : EndPointDetails1) {
+            for (EndPointDetails EndPointDetails2 : endPointDetailsList1) {
+                if (handlerName.equals(EndPointDetails2.getHandlerName())) {
+                    MethodAndEndpoint methodAndEndpoint=new MethodAndEndpoint();
+                    methodAndEndpoint.setMethodName(EndPointDetails2.getMethodName());
+                    methodAndEndpoint.setEndPointName(EndPointDetails2.getEndPointName());
+                    methodAndEndpointList.add(methodAndEndpoint);
+                    //break;
+                }
+            }
+            FinalModelUnsedApi finalModelUnsedApi=new FinalModelUnsedApi();
+            finalModelUnsedApi.setHandlerName(handlerName);
+            finalModelUnsedApi.setMethodAndEndpoint(methodAndEndpointList);
+            methodAndEndpointList =new ArrayList<>();
+            finalModelUnsedApiList.add(finalModelUnsedApi);
+        }
+        return finalModelUnsedApiList;
     }
 }
