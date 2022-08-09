@@ -4,7 +4,7 @@ import com.example.AsishWorks.model.Photo;
 import com.example.AsishWorks.model.Video;
 import com.example.AsishWorks.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,11 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.zip.ZipOutputStream;
-
-
-//management.endpoints.web.exposure.include=*
-//
-//management.endpoints.web.exposure.include=mappings
 
 // Links
 
@@ -29,39 +24,6 @@ public class FileController {
 
     @Autowired
     FileService fileService;
-
-
-
-
-
-    @PutMapping("/checkPut")
-    public String checkPut() {
-        return  "This is put call";
-    }
-
-    @DeleteMapping("/checkDelete")
-    public String checkDelete() {
-        return  "This is Delete call";
-    }
-
-    @PostMapping("/checkPost")
-    public String checkPost() {
-        return  "This is post call";
-    }
-
-
-    @GetMapping("/checkGet")
-    public String checkGet() {
-        return  "This is post call";
-    }
-
-
-
-
-
-
-
-
 
 
     //               PHOTO FILE  HANDLING
@@ -153,5 +115,4 @@ public class FileController {
         response.setHeader("Content-Disposition", "attachment;filename="+video.getFileName());
         FileCopyUtils.copy(video.getVideo().getData(), response.getOutputStream());
     }
-
 }
